@@ -1,33 +1,44 @@
 import express from 'express'
 import jwt from'jsonwebtoken'
 import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
+
+import { registerValidation } from './validation/auth.js'
+import { validationResult } from 'express-validator'
+import User from './models/User.js'
 
 const app = express()
 
 mongoose
-    .connect('mongodb+srv://rafa:Uy6PES6HxKA8UTV@cluster0.oinetw9.mongodb.net/?retryWrites=true&w=majority')
+    .connect('mongodb+srv://rafa:Uy6PES6HxKA8UTV@cluster0.oinetw9.mongodb.net/blog?retryWrites=true&w=majority')
     .then(() => console.log('DB works perfectly'))
     .catch((err) => console.log('DB error occured', err))
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    res.send('Hello world')
-})
+app.post('/auth/register', registerValidation, async (req, res) => {
+    const errors = validationResult(req)
+    
+    if (!errors.isEmpty()) {
+        return res.status(400).json(errors.array())
+    }
 
-app.post('/auth/login', (req, res) => {
-    console.log(req.body)
+    // before creating a user
+    const password = req.body.password
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
 
-    // when we get a request, we would need to generate a jwt
-    const token = jwt.sign({
+    // create a user in MongoDB
+    const user = new User({
         name: req.body.name,
-        email: req.body.email
-    }, 'secretkey123')
+        email: req.body.email,
+        password: hashedPassword,
+        avatarUrl: req.body.avatarUrl
+    }) 
 
-    res.json({ 
-        message: 'login successfull',
-        token
-    })
+    const newUser = await user.save()
+
+    res.json({ newUser, message: 'Registration successful' })
 })
 
 app.listen(4444, (err) => {
