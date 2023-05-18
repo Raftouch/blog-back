@@ -1,7 +1,8 @@
-const express = require('express')
+import express from 'express'
+import jwt from'jsonwebtoken'
+import mongoose from 'mongoose'
+
 const app = express()
-const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose')
 
 mongoose
     .connect('mongodb+srv://rafa:Uy6PES6HxKA8UTV@cluster0.oinetw9.mongodb.net/?retryWrites=true&w=majority')
