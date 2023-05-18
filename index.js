@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-import { registerValidation } from "./validation/auth.js";
+import { registerValidation } from "./validation/auth.validation.js";
 import { validationResult } from "express-validator";
 import User from "./models/User.js";
 
@@ -40,10 +40,42 @@ app.post("/auth/register", registerValidation, async (req, res) => {
     });
 
     const newUser = await user.save();
-    res.json({ newUser, message: "Registration successful" });
+
+    const token = jwt.sign({ _id: newUser._id }, "secretkey123", {
+      expiresIn: "1h",
+    });
+
+    res.json({ newUser, message: "Registration successful", token });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Registration failed" });
+  }
+});
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // if user found, check for password
+    const isValidated = await bcrypt.compare(req.body.password, user.password);
+
+    if (!isValidated) {
+      return res.status(400).json({ message: "Wrong credentials" });
+    }
+    // 400 bad request
+
+    const token = jwt.sign({ _id: user._id }, "secretkey123", {
+      expiresIn: "1h",
+    });
+
+    res.json({ user, message: "Login successful", token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Login failed" });
   }
 });
 
