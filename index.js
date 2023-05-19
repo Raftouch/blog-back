@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { registerValidation } from "./validation/auth.validation.js";
+import { registerValidation, loginValidation } from "./validations.js";
 import checkAuth from "./middleware/auth.middleware.js";
 import * as UserController from "./controllers/UserController.js";
 
@@ -19,7 +19,7 @@ app.use(express.json());
 // info about me (about a user) --> check if we can give access == decode token --> create auth.middleware
 app.get("/auth/me", checkAuth, UserController.getMyInfo);
 app.post("/auth/register", registerValidation, UserController.register);
-app.post("/auth/login", UserController.login);
+app.post("/auth/login", loginValidation, UserController.login);
 
 app.listen(4444, (err) => {
   if (err) {
