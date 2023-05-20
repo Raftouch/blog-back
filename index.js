@@ -7,9 +7,8 @@ import {
   loginValidation,
   articleCreateValidation,
 } from "./validations.js";
-import checkAuth from "./middleware/auth.middleware.js";
-import * as UserController from "./controllers/UserController.js";
-import * as ArticleController from "./controllers/ArticleController.js";
+import { UserController, ArticleController } from "./controllers/main.js";
+import { checkAuth, handleValidationErrors } from "./middleware/main.js";
 
 const app = express();
 app.use(express.json());
@@ -31,7 +30,7 @@ app.post("/upload", checkAuth, upload.single("image"), (req, res) => {
   });
 });
 
-app.use('/uploads', express.static('uploads'))
+app.use("/uploads", express.static("uploads"));
 
 mongoose
   .connect(
@@ -41,8 +40,18 @@ mongoose
   .catch((err) => console.log("DB error occured", err));
 
 // info about me (about a user) --> check if we can give access == decode token --> create auth.middleware
-app.post("/auth/register", registerValidation, UserController.register);
-app.post("/auth/login", loginValidation, UserController.login);
+app.post(
+  "/auth/register",
+  registerValidation,
+  handleValidationErrors,
+  UserController.register
+);
+app.post(
+  "/auth/login",
+  loginValidation,
+  handleValidationErrors,
+  UserController.login
+);
 app.get("/auth/me", checkAuth, UserController.getMyInfo);
 
 app.get("/articles", ArticleController.getAll);
@@ -51,10 +60,17 @@ app.post(
   "/articles",
   checkAuth,
   articleCreateValidation,
+  handleValidationErrors,
   ArticleController.create
 );
 app.delete("/articles/:id", checkAuth, ArticleController.remove);
-app.patch("/articles/:id", checkAuth, ArticleController.update);
+app.patch(
+  "/articles/:id",
+  checkAuth,
+  articleCreateValidation,
+  handleValidationErrors,
+  ArticleController.update
+);
 
 app.listen(4444, (err) => {
   if (err) {
