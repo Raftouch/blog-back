@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import multer from "multer";
 
 import {
   registerValidation,
@@ -11,6 +12,26 @@ import * as UserController from "./controllers/UserController.js";
 import * as ArticleController from "./controllers/ArticleController.js";
 
 const app = express();
+app.use(express.json());
+
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, "uploads");
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+app.post("/upload", checkAuth, upload.single("image"), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
+
+app.use('/uploads', express.static('uploads'))
 
 mongoose
   .connect(
@@ -18,8 +39,6 @@ mongoose
   )
   .then(() => console.log("DB works perfectly"))
   .catch((err) => console.log("DB error occured", err));
-
-app.use(express.json());
 
 // info about me (about a user) --> check if we can give access == decode token --> create auth.middleware
 app.post("/auth/register", registerValidation, UserController.register);
