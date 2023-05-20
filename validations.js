@@ -13,8 +13,8 @@ export const registerValidation = [
 ];
 
 export const articleCreateValidation = [
-  body("title", "Please enter a header").isLength({ min: 3 }).isString(),
-  body("text", "Type your text here").isLength({ min: 10 }).isString(),
+  body("title", "Please enter a title").isLength({ min: 3 }).isString(),
+  body("text", "Please enter your text").isLength({ min: 10 }).isString(),
   body("tags", "Wrong tag format, should be an array").optional().isString(),
   body("imageUrl", "Wrong url").optional().isString(),
 ];
