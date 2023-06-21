@@ -1,6 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import multer from "multer";
+import dotenv from "dotenv";
+dotenv.config()
 
 import {
   registerValidation,
@@ -9,6 +11,8 @@ import {
 } from "./validations.js";
 import { UserController, ArticleController } from "./controllers/main.js";
 import { checkAuth, handleValidationErrors } from "./middleware/main.js";
+
+const port = process.env.PORT || 4444
 
 const app = express();
 app.use(express.json());
@@ -33,9 +37,7 @@ app.post("/upload", checkAuth, upload.single("image"), (req, res) => {
 app.use("/uploads", express.static("uploads"));
 
 mongoose
-  .connect(
-    "mongodb+srv://rafa:Uy6PES6HxKA8UTV@cluster0.oinetw9.mongodb.net/blog?retryWrites=true&w=majority"
-  )
+  .connect(process.env.MONGO_URL)
   .then(() => console.log("DB works perfectly"))
   .catch((err) => console.log("DB error occured", err));
 
@@ -72,9 +74,9 @@ app.patch(
   ArticleController.update
 );
 
-app.listen(4444, (err) => {
+app.listen(port, (err) => {
   if (err) {
     return console.log(err);
   }
-  console.log("Server is running on port 4444");
+  console.log(`Server is running on port ${port}`);
 });
