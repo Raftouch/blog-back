@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 const articleSchema = new mongoose.Schema(
   {
@@ -21,7 +21,7 @@ const articleSchema = new mongoose.Schema(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     imageUrl: String,
@@ -29,6 +29,6 @@ const articleSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-);
+)
 
-export default mongoose.model("Article", articleSchema);
+export default mongoose.model('Article', articleSchema)
