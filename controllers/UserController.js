@@ -46,7 +46,7 @@ export const login = async (req, res) => {
     }
     // 400 bad request
 
-    const token = jwt.sign({ _id: user._id }, "secretkey123", {
+    const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
       expiresIn: "1h",
     });
 
